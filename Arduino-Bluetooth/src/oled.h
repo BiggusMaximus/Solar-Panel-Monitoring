@@ -16,10 +16,10 @@ void start_oled()
     }
     else
     {
-        Serial.print("OLED IS ABLE TO USE");
+        Serial.println("OLED IS ABLE TO USE");
     }
     // text display tests
-    display.setTextSize(2);
+    display.setTextSize(1);
     display.setTextColor(SSD1306_WHITE);
     display.clearDisplay();
 }
@@ -28,9 +28,9 @@ void display_parameter(float v, float i, float w)
 {
     display.setCursor(0, 0);
     display.print("V: " + String(v));
-    display.setCursor(0, 25);
+    display.setCursor(0, 15);
     display.print("I: " + String(i));
-    display.setCursor(0, 50);
+    display.setCursor(0, 30);
     display.print("W: " + String(w));
     delay(1000);
     yield();

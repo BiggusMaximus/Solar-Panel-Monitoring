@@ -33,7 +33,7 @@ void loop()
   float power = voltage * current;
   display_parameter(voltage, current, power);
 
-  String data = String(voltage) + "," + String(current) + "," + String(power);
+  String data = String(voltage) + "V," + String(current) + "A," + String(power) + 'W';
 
   // Adjust Delay
   if ((millis() - lastTime) > 5000)
