@@ -1,3 +1,5 @@
+import serial.tools.list_ports
+from datetime import datetime
 import customtkinter
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
@@ -7,7 +9,10 @@ from matplotlib.backends.backend_tkagg import (
     NavigationToolbar2Tk
 )
 import os
+import threading
+import dateutil
 import sys
+import time
 import csv
 import dateutil
 import matplotlib.dates as md
@@ -20,10 +25,14 @@ customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("blue")
 
 
-def on_closing(event=0):
-    app.quit()
+# Serial Com
+serial_arduino = serial.Serial(baudrate=9600, timeout=0)
 
 # Main Controller
+
+
+def on_closing(event=0):
+    app.quit()
 
 
 app = customtkinter.CTk()
@@ -92,23 +101,33 @@ title_app.grid(row=0, column=0,
 
 # Combobox choose device
 device_value = customtkinter.StringVar(value="Device 1")
+columns = ('Parameter', 'Value')
+device_tree = ttk.Treeview(
+    title_frame2,
+    columns=columns,
+    show='headings',
+    height=5
+)
+device_tree.heading('Parameter', text='Parameter')
+device_tree.heading('Value', text='Value')
+col_width = device_tree.winfo_width()
+device_tree.column("# 1", anchor=CENTER, width=col_width)
+device_tree.column("# 2", anchor=CENTER, width=col_width)
+device_tree.delete(*device_tree.get_children())
+device_tree.insert("", 'end', values=('Pmax', '50W'))
+device_tree.insert("", 'end', values=('Vmp', '18V'))
+device_tree.insert("", 'end', values=('Imp', '2.78A'))
+device_tree.insert("", 'end', values=('Voc', '22.11V'))
+device_tree.insert("", 'end', values=('Isc', '2.94'))
+
+device_tree.grid(row=2, rowspan=1, column=0, padx=5,
+                 sticky="ew")
 
 
-def combobox_callback(choice):
-    print("combobox dropdown clicked:", choice)
+def combobox_device_callback(choice):
+    print("device choose:", choice)
     # Device
-    columns = ('Parameter', 'Value')
-    device_tree = ttk.Treeview(
-        title_frame2,
-        columns=columns,
-        show='headings',
-        height=5
-    )
-    device_tree.heading('Parameter', text='Parameter')
-    device_tree.heading('Value', text='Value')
-    col_width = device_tree.winfo_width()
-    device_tree.column("# 1", anchor=CENTER, width=col_width)
-    device_tree.column("# 2", anchor=CENTER, width=col_width)
+
     if choice == 'Device 1':
         device_tree.delete(*device_tree.get_children())
         device_tree.insert("", 'end', values=('Pmax', '50W'))
@@ -125,35 +144,65 @@ def combobox_callback(choice):
         device_tree.insert("", 'end', values=('Voc', '18V'))
         device_tree.insert("", 'end', values=('Isc', '0.53A'))
 
-    device_tree.grid(row=2, rowspan=1, column=0, padx=5,
-                     sticky="ew")
-
 
 choose_device = customtkinter.CTkComboBox(
     master=title_frame2,
     values=["Device 1", "Device 2"],
     variable=device_value,
-    command=combobox_callback
+    command=combobox_device_callback
 )
 choose_device.grid(row=1, padx=5, sticky="we")
 
 
 # Status Connected
+port_status_value = customtkinter.StringVar(value="Not Connecter")
 status_connect_label = customtkinter.CTkLabel(master=title_frame2,
-                                              text="Connected",
+                                              text="port_status_value",
                                               corner_radius=6,  # <- custom corner radius
                                               # <- custom tuple-color
-                                                   fg_color=(
-                                                       "white", "gray38"),
-                                                   justify=LEFT)
-status_connect_label.grid(row=3,  column=0, sticky="ew", padx=5, pady=5)
+                                              fg_color=(
+                                                  "white", "gray38"),
+                                              justify=LEFT)
+status_connect_label.grid(row=4,  column=0, sticky="ew", padx=5, pady=5)
+
+
+# Choose Port
+def combobox_port_callback(choice):
+    print("combobox dropdown clicked:", choice)
+    global port_choice
+    port_choice = choice
+
+
+port_value = customtkinter.StringVar(value="COM10")
+choose_port = customtkinter.CTkComboBox(
+    master=title_frame2,
+    values=[str(port.device) for port in serial.tools.list_ports.comports()],
+    variable=port_value,
+    command=combobox_port_callback
+)
+choose_port.grid(row=5, padx=5, sticky="we")
 
 # Connect to Device
-connect_device_button = customtkinter.CTkButton(
-    title_frame2, text="Connect To Device", border_width=0.5, border_color="black")
-connect_device_button.grid(row=4,  column=0, sticky="ew", padx=5)
 
-# imgss
+
+def connect_device_callback():
+    serial_arduino.port = port_choice
+    try:
+        serial_arduino.open()
+        status_connect_label.configure(text=f"Connected : {port_choice}")
+        return True
+    except (FileNotFoundError, OSError):
+        serial_arduino.close()
+        status_connect_label.configure(text=f"Cant Connect To {port_choice}")
+        return False
+
+
+connect_device_button = customtkinter.CTkButton(
+    title_frame2, text="Connect To Device", border_width=0.5, border_color="black", command=connect_device_callback)
+connect_device_button.grid(row=6,  column=0, sticky="ew", padx=5, pady=5)
+
+
+# img
 image = PIL.Image.open("logo.png")
 basewidth = 200
 wpercent = (basewidth/float(image.size[0]))
@@ -193,9 +242,6 @@ graph_frame.rowconfigure(1, weight=1)
 
 
 plt.style.use('seaborn-dark-palette')
-df = pd.read_csv('data.csv')
-datestrings = df['time']
-dates = [dateutil.parser.parse(s) for s in datestrings]
 xfmt = md.DateFormatter('%H:%M:%S')
 
 m = 0.3
@@ -205,66 +251,96 @@ right = 0.01
 left = 0.1
 top = 0.26
 
-# Current
-fig_cur, ax_curr = plt.subplots(figsize=(m, n))
-ax_curr.set_xticks(dates)
+current = []
+voltage = []
+power = []
+second = []
+energy = []
 
+fig_cur, ax_curr = plt.subplots(figsize=(m, n))
+ax_curr.set_xticks(second)
 canvas_curr = FigureCanvasTkAgg(fig_cur, graph_frame)
 canvas_curr.get_tk_widget().grid(column=0, row=0, sticky=N+S+E+W)
-
-ax_curr.xaxis.set_major_formatter(xfmt)
-ax_curr.yaxis.set_major_locator(MaxNLocator(prune='lower'))
-ax_curr.plot(dates, df['current'], "o-")
+ax_curr.set_ylim(0, 2)
 ax_curr.set_title("Current (A)")
-ax_curr.tick_params(axis='both', which='major', labelsize=7)
-fig_cur.autofmt_xdate()
-fig_cur.subplots_adjust(bottom=bottom)
 
-# Voltage
 fig_volt, ax_volt = plt.subplots(figsize=(m, n))
-ax_volt.set_xticks(dates)
-
+ax_volt.set_xticks(second)
+ax_volt.set_title("Voltage (V)")
 canvas_volt = FigureCanvasTkAgg(fig_volt, graph_frame)
 canvas_volt.get_tk_widget().grid(column=1, row=0, sticky=N+S+E+W)
-ax_volt.xaxis.set_major_formatter(xfmt)
-ax_volt.yaxis.set_major_locator(MaxNLocator(prune='lower'))
-ax_volt.plot(dates, df['voltage'], "o-")
-ax_volt.set_title("Voltage (V)")
-ax_volt.tick_params(axis='both', which='major', labelsize=7)
-fig_volt.autofmt_xdate()
-fig_volt.subplots_adjust(bottom=bottom)
+ax_volt.set_ylim(0, 20)
 
-# Power
 fig_power, ax_power = plt.subplots(figsize=(m, n))
-ax_power.set_xticks(dates)
-
+ax_power.set_xticks(second)
+ax_power.set_title("Power (W)")
 canvas_power = FigureCanvasTkAgg(fig_power, graph_frame)
 canvas_power.get_tk_widget().grid(column=0, row=1,  sticky=N+S+E+W)
-ax_power.xaxis.set_major_formatter(xfmt)
-ax_power.yaxis.set_major_locator(MaxNLocator(prune='lower'))
-ax_power.plot(dates, df['power'], "o-")
-ax_power.set_title("Power (W)")
-ax_power.tick_params(axis='both', which='major', labelsize=7)
-fig_power.autofmt_xdate()
-fig_power.subplots_adjust(bottom=bottom)
+ax_power.set_ylim(0, 20)
 
-# VI
 fig_VI, ax_VI = plt.subplots(figsize=(m, n))
-ax_VI.set_xticks(dates)
-
+ax_VI.set_xticks(second)
 canvas_VI = FigureCanvasTkAgg(fig_VI, graph_frame)
 canvas_VI.get_tk_widget().grid(column=1, row=1,  sticky=N+S+E+W)
-ax_VI.xaxis.set_major_formatter(xfmt)
-ax_VI.yaxis.set_major_locator(MaxNLocator(prune='lower'))
-ax_VI.plot(dates, df['current'], "o-")
-ax_VI.plot(dates, df['voltage'], "o-")
-ax_VI.tick_params(axis='both', which='major', labelsize=7)
-ax_VI.set_title("VI")
-fig_VI.autofmt_xdate()
-# fig_VI.subplots_adjust(bottom=bottom, top=top, right=right, left=left)
+ax_VI.set_title("Energy (kWh)")
+plt.setp(ax_curr.get_xticklabels(), visible=True)
+ax_VI.set_ylim(0, 50)
 
 
-canvas_curr.draw()
+def animate(current, voltage, power, second):
+    second = [dateutil.parser.parse(s) for s in second]
+    # Current
+    ax_curr.clear()
+    ax_curr.set_ylim(0, 2)
+    ax_curr.xaxis.set_major_formatter(xfmt)
+    ax_curr.plot(second, current, "o-")
+    ax_curr.set_title("Current (A)")
+    ax_curr.locator_params(nbins=10, tight=True)
+    ax_curr.tick_params(axis='both', which='major', labelsize=7)
+    fig_cur.autofmt_xdate()
+    fig_cur.subplots_adjust(bottom=bottom)
+    ax_curr.yaxis.set_major_locator(MaxNLocator(prune='lower'))
+    canvas_curr.draw()
+    plt.setp(ax_curr.get_yticklabels(), visible=True)
+
+    # Voltage
+    ax_volt.clear()
+    ax_volt.set_ylim(0, 20)
+    ax_volt.xaxis.set_major_formatter(xfmt)
+    ax_volt.yaxis.set_major_locator(MaxNLocator(prune='lower'))
+    ax_volt.plot(second, voltage, "o-")
+    ax_volt.locator_params(nbins=10, tight=True)
+    ax_volt.set_title("Voltage (V)")
+    ax_volt.tick_params(axis='both', which='major', labelsize=7)
+    fig_volt.autofmt_xdate()
+    fig_volt.subplots_adjust(bottom=bottom)
+    canvas_volt.draw()
+
+    # Power
+    ax_power.clear()
+    ax_power.set_ylim(0, 20)
+    ax_power.xaxis.set_major_formatter(xfmt)
+    ax_power.yaxis.set_major_locator(MaxNLocator(prune='lower'))
+    ax_power.plot(second, power, "o-")
+    ax_power.set_title("Power (W)")
+    ax_power.tick_params(axis='both', which='major', labelsize=7)
+    ax_power.locator_params(nbins=10, tight=True)
+    fig_power.autofmt_xdate()
+    fig_power.subplots_adjust(bottom=bottom)
+    canvas_power.draw()
+
+    # VI
+    ax_VI.clear()
+    ax_VI.set_ylim(0, 50)
+    ax_VI.xaxis.set_major_formatter(xfmt)
+    ax_VI.yaxis.set_major_locator(MaxNLocator(prune='lower'))
+    ax_VI.plot(second, energy, "o-")
+    ax_VI.tick_params(axis='both', which='major', labelsize=7)
+    ax_VI.locator_params(nbins=10, tight=True)
+    ax_VI.set_title("Energy (kWh)")
+    fig_VI.autofmt_xdate()
+    # fig_VI.subplots_adjust(bottom=bottom, top=top, right=right, left=left)
+    canvas_VI.draw()
 
 
 # Table
@@ -374,4 +450,35 @@ save_to_excel_button = customtkinter.CTkButton(
 import_to_excel_button = customtkinter.CTkButton(
     table_frame, text="Load Excel", command=load_data, border_width=0.5, border_color="black").grid(row=1,  column=0, sticky=W+E)
 
-app.mainloop()
+while True:
+    app.update()
+    if serial_arduino.isOpen():
+        val = serial_arduino.readline()
+        while not '\\n' in str(val):         # check if full data is received.
+            # This loop is entered only if serial read value doesn't contain \n
+            # which indicates end of a sentence.
+            # str(val) - val is byte where string operation to check `\\n`
+            # can't be performed
+            time.sleep(.001)                # delay of 1ms
+            # check for serial output.
+            temp = serial_arduino.readline()
+            if not not temp.decode():       # if temp is not empty.
+                val = (val.decode()+temp.decode()).encode()
+                # requrired to decode, sum, then encode because
+                # long values might require multiple passes
+        val = val.decode()                  # decoding from bytes
+        val = val.strip()
+        # Get date
+        now = datetime.now()
+        second.append(now.strftime("%H:%M:%S"))
+        my_list = val.split(",")
+        voltage.append(float(my_list[0][0:-1]))
+        current.append(float(my_list[1][0:-1]))
+        power.append(float(my_list[2][0:-1]))
+        energy.append(float(my_list[2][0:-1]) * 3.6)
+        animate(current, voltage, power, second)
+        table_data.insert(
+            "",
+            'end',
+            values=(second[-1], voltage[-1], current[-1],  power[-1])
+        )
