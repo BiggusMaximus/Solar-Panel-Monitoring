@@ -31,8 +31,8 @@ void setup()
     float current = read_current();
     float power = voltage * current;
     display_parameter(voltage, current, power);
-    String data = String(voltage) + "V," + String(current) + "A," + String(power) + 'W';
-    Serial.println(data);
+
+    Serial.println(voltage);
     delay(250);
   }
   Serial.println("Finish");
