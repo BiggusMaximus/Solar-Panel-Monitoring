@@ -27,12 +27,29 @@ void setup()
   // }
   for (int i = 0; i < 1000; i++)
   {
-    float voltage = read_voltage();
-    float current = read_current();
-    float power = voltage * current;
-    display_parameter(voltage, current, power);
+    // float voltage = read_voltage();
+    // float current = read_current();
+    // float power = voltage * current;
+    // display_parameter(voltage, current, power);
+    // String data = String(current);
+    // Serial.println(data);
+    float voltage_filter[50];
+    float current_filter[50];
+    int n_modus = 50;
 
-    Serial.println(voltage);
+    for (int i = 0; i < 50; i++)
+    {
+      voltage_filter[i] = read_voltage_avg();
+    }
+    for (int i = 0; i < 50; i++)
+    {
+      current_filter[i] = read_current();
+    }
+    float watt = (modus(voltage_filter, n_modus)) * (modus(current_filter, n_modus));
+
+    Serial.println(String(modus(voltage_filter, n_modus)));
+    //Serial.print(" Current: " + String(modus(current_filter, n_modus)));
+    //Serial.println(" Watt: " + String(watt));
     delay(250);
   }
   Serial.println("Finish");
