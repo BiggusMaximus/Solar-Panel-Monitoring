@@ -11,7 +11,7 @@ void setup()
   Serial.begin(9600);
   // start_bluetooth();
   // start_sdCard();
-  start_oled();
+  // start_oled();
 
   // int n = 10;
   // float current_filter[n];
@@ -25,6 +25,8 @@ void setup()
   //   Serial.println(data);
   //   lastTime = millis();
   // }
+  Serial.println("Start");
+  // Serial.println(String(analog_avg()));
   for (int i = 0; i < 1000; i++)
   {
     // float voltage = read_voltage();
@@ -33,28 +35,32 @@ void setup()
     // display_parameter(voltage, current, power);
     // String data = String(current);
     // Serial.println(data);
-    float voltage_filter[50];
-    float current_filter[50];
-    int n_modus = 50;
+    // float voltage_filter[50];
+    // float current_filter[50];
+    // int n_modus = 50;
 
-    for (int i = 0; i < 50; i++)
-    {
-      voltage_filter[i] = read_voltage_avg();
-    }
-    for (int i = 0; i < 50; i++)
-    {
-      current_filter[i] = read_current();
-    }
-    float watt = (modus(voltage_filter, n_modus)) * (modus(current_filter, n_modus));
+    // for (int i = 0; i < 50; i++)
+    // {
+    //   voltage_filter[i] = read_voltage_avg();
+    // }
+    // for (int i = 0; i < 50; i++)
+    // {
+    //   current_filter[i] = read_current();
+    // }
+    // float watt = (modus(voltage_filter, n_modus)) * (modus(current_filter, n_modus));
 
-    Serial.println(String(modus(voltage_filter, n_modus)));
     //Serial.print(" Current: " + String(modus(current_filter, n_modus)));
     //Serial.println(" Watt: " + String(watt));
-    delay(250);
+    
+    Serial.println(String(read_voltage_avg_calibration()));
   }
   Serial.println("Finish");
 }
 
 void loop()
 {
+  // Serial.println(String(read_voltage_avg_calibration()));
+  // delay(1000);
+  // Serial.println(String(read_voltage_avg_calibration()));
+  // delay(100);
 }

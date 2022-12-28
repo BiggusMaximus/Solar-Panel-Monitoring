@@ -2,6 +2,16 @@
 #define R1 30000.0
 #define R2 7500.0
 
+float analog_avg(){
+    uint16_t avg_analog = 0;
+    for (byte i = 0; i < 10; i++)
+    {
+        avg_analog = avg_analog + analogRead(A2);
+    }
+    avg_analog = avg_analog / 10;
+    return avg_analog;
+}
+
 float read_voltage_avg()
 {
     uint16_t avg_volt = 0;
@@ -11,6 +21,17 @@ float read_voltage_avg()
     }
     avg_volt = avg_volt / 10;
     float volt = ((avg_volt * 5.0) / 1024.0) / (R2 / (R1 + R2));
+    return volt;
+}
+
+float read_voltage_avg_calibration(){
+    uint16_t avg_volt = 0;
+    for (byte i = 0; i < 10; i++)
+    {
+        avg_volt = avg_volt + analogRead(A2);
+    }
+    avg_volt = avg_volt / 10;
+    float volt = 0.06449091372411075 + 0.024386004366555764 * avg_volt;
     return volt;
 }
 
