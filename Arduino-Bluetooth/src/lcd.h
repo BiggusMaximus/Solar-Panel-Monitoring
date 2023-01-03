@@ -11,7 +11,7 @@ void start_lcd()
   lcd.setCursor(5,0);
   lcd.print("Start");
   lcd.clear();
-  delay(500);
+  // delay(500);
 }
 
 void LCDdisplay_parameter(float v, float i, float w)

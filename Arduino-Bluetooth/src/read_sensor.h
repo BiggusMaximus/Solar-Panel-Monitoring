@@ -4,14 +4,16 @@
 #define voltagePin A0
 #define currentPin A1
 
-float analog_avg(){
-    uint16_t avg_analog = 0;
-    for (byte i = 0; i < 10; i++)
+void analog_avg()
+{
+    float avg_analog = 0;
+    for (int i = 0; i < 1000; i++)
     {
-        avg_analog = avg_analog + analogRead(voltagePin);
+        avg_analog = avg_analog + analogRead(currentPin);
+        delay(10);
     }
-    avg_analog = avg_analog / 10;
-    return avg_analog;
+    avg_analog = avg_analog / 1000.0;
+    Serial.println(avg_analog);
 }
 
 float read_voltage_avg()
@@ -26,7 +28,8 @@ float read_voltage_avg()
     return volt;
 }
 
-float read_voltage_avg_calibration(){
+float read_voltage_avg_calibration()
+{
     uint16_t avg_volt = 0;
     for (byte i = 0; i < 10; i++)
     {
