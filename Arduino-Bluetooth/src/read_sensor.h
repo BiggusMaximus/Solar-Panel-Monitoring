@@ -62,16 +62,12 @@ float read_current()
 
 float read_current_avg()
 {
-    uint16_t avg_curr = 0;
+    float avg_curr = 0;
     for (byte i = 0; i < 10; i++)
     {
         avg_curr = avg_curr + analogRead(currentPin);
     }
     avg_curr = avg_curr / 10;
-    float current = -7.516720252125317 + (0.01473662 * avg_curr);
-    // if (current < 0)
-    // {
-    //     current = 0;
-    // }
+    float current = -24.944444156765247 + 0.04898098345792092 * avg_curr;
     return current;
 }
