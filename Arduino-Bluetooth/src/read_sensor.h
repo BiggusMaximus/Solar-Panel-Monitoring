@@ -3,6 +3,7 @@
 #define R2 7500.0
 #define voltagePin A0
 #define currentPin A1
+float watt;
 
 void analog_avg()
 {
@@ -63,11 +64,11 @@ float read_current()
 float read_current_avg()
 {
     float avg_curr = 0;
-    for (byte i = 0; i < 10; i++)
+    for (int i = 0; i < 1000; i++)
     {
         avg_curr = avg_curr + analogRead(currentPin);
     }
-    avg_curr = avg_curr / 10;
-    float current = -24.944444156765247 + 0.04898098345792092 * avg_curr;
+    avg_curr = avg_curr / 1000.0;
+    float current = -24.944444156765247 + 0.04898098345792092 * avg_curr + 0.11;
     return current;
 }

@@ -5,7 +5,9 @@
 #include <bluetooth.h>
 #include <lcd.h>
 
-unsigned long lastTime = 0;
+unsigned long interval=5000; // the time we need to wait
+unsigned long previousMillis=0; // millis() returns an unsigned long.
+float voltage, current;
 
 void setup()
 {
@@ -15,17 +17,24 @@ void setup()
 
 void loop()
 {
-  float watt = read_voltage_avg_calibration() * read_current_avg();
-  Serial.print(String(read_voltage_avg_calibration()) + "V   ||   ");
-  Serial.print(String(read_current_avg()) + "A   ||   ");
-  Serial.println(String(watt) + "W");
+  unsigned long currentMillis = millis();
+  if ((unsigned long)(currentMillis - previousMillis) >= interval) {
+    watt = read_voltage_avg_calibration() * read_current_avg();
+    previousMillis = millis();
+    voltage = read_voltage_avg_calibration();
+    current = read_current_avg();
+    lcd.clear();  
 
+ }
+  Serial.print(String(voltage) + "V   ||   ");
+  Serial.print(String(current) + "A   ||   ");
+  Serial.println(String(watt) + "W");
   lcd.setCursor(2,0);
-  lcd.print(String(read_voltage_avg_calibration()) + "V");
+  lcd.print(String(voltage) + "V");
   lcd.setCursor(9,0);
-  lcd.print(String(read_current_avg()) + "A");
+  lcd.print(current, 3);
+  lcd.print("A");
   lcd.setCursor(2,1);
   lcd.print(String(watt) + "W");
-  delay(500);
-  lcd.clear();
+  
 }
