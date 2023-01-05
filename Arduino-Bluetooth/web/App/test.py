@@ -6,6 +6,6 @@ GPIO.setmode(GPIO.BOARD)
 port = serial.Serial("/dev/ttyAMA0", baudrate=9600, timeout=0.5)
  
 while True:
-    port.write('A')
+    port.write('A'.encode('utf-8'))
     rcv = port.read(10)
     print(rcv)
