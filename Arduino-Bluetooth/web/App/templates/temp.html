@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="container-lg ml-5 mr-5 justify-content-center mt-5">
+    <div class="row">
+        <div class="col">
+            <h2 class="text-center">Usage</h2>
+            <table class="table custom-table">
+                <thead>
+                    <tr>
+                    <th>Current</th>
+                    <th>Voltage</th>
+                    <th>Power</th>
+                    <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in data %}
+                    <tr>
+                        <td>{{ item.Current }}</td>
+                        <td>{{ item.Voltage }}</td>
+                        <td>{{ item.Power }}</td>
+                        <td>{{ item.Timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col">
+            <h2 class="text-center">Usage</h2>
+            <table class="table custom-table">
+                <thead>
+                    <tr>
+                    <th>Current</th>
+                    <th>Voltage</th>
+                    <th>Power</th>
+                    <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in data %}
+                    <tr>
+                        <td>{{ item.Current }}</td>
+                        <td>{{ item.Voltage }}</td>
+                        <td>{{ item.Power }}</td>
+                        <td>{{ item.Timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+{% endblock %}

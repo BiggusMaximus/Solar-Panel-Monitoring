@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="container-lg ml-5 mr-5 justify-content-center mt-5">
+    <div class="row justify-content-center">
+        <a href="{{url_for('views.download')}}" class="btn btn-info text-center" role="button">Download Excel</a>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h2 class="text-center">Power Generated</h2>
+            <table class="table custom-table" id="tabel_power_generated">
+                <thead>
+                    <tr>
+                    <th>Current</th>
+                    <th>Voltage</th>
+                    <th>Power</th>
+                    <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="col">
+            <h2 class="text-center">Power Used</h2>
+            <table class="table custom-table" id="tabel_power_used">
+                <thead>
+                    <tr>
+                    <th>Current</th>
+                    <th>Voltage</th>
+                    <th>Power</th>
+                    <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    setInterval(function() {
+      $.ajax({
+        url: '/update',
+        success: function(data) {
+            $('#tabel_power_generated > tbody').empty();
+            data.forEach(function(row) {
+                console.log(row)
+                $('#tabel_power_generated > tbody').append(
+                    '<tr><td>' + row['Voltage_generated'] + '</td><td>' + row['Current_generated'] + '</td><td>' + row['Power_generated'] + '</td><td>' + row['Timestamp_generated'] +  '</td></tr>'
+                );
+             
+            });
+            $('#tabel_power_used > tbody').empty();
+            data.forEach(function(row) {
+                $('#tabel_power_used > tbody').append(
+                    '<tr><td>' + row['Voltage_used'] + '</td><td>' + row['Current_used'] + '</td><td>' + row['Power_used'] + '</td><td>' + row['Timestamp_used'] +  '</td></tr>'
+                );
+             
+            });
+        }}
+    )}, 10000);
+</script>
+    
+{% endblock %}
