@@ -91,11 +91,11 @@ void read_all(){
     power_used = voltage_used * current_used;
 
     Serial.println(
-        String(voltage_generated) + " | " +
-        String(current_generated) + " | " +
-        String(power_generated) + " | " +
-        String(voltage_used) + " | " +
-        String(current_used) + " | " +
+        String(voltage_generated) + "," +
+        String(current_generated) + "," +
+        String(power_generated) + "," +
+        String(voltage_used) + "," +
+        String(current_used) + "," +
         String(power_used) 
     );
 }

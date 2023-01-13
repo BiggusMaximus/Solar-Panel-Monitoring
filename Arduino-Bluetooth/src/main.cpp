@@ -16,15 +16,5 @@ void setup()
 void loop()
 {
   read_all();
-  delay(300);
-
-  // if(Serial.available() > 0)
-  // {
-  //   char c=Serial.read();
-  //   if(c=='A')
-  //   {
-  //      delay(1000);
-  //   Serial.print("OK");
-  //   }
-  // }
+  delay(500);                  // give the loop some break
 }
