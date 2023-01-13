@@ -68,7 +68,3 @@ def get_data():
     df.to_excel('data.xlsx', index=False)
 
     return data
-
-
-while True:
-    parsing_data()
