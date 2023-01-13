@@ -78,24 +78,24 @@ float read_current_avg_calibration(int pin)
         avg_curr = avg_curr + analogRead(pin);
     }
     avg_curr = avg_curr / 1000.0;
-    float current = -24.944444156765247 + 0.04898098345792092 * avg_curr + 0.11;
+    float current = -24.944444156765247 + 0.04898098345792092 * avg_curr;
     return current;
 }
 
 void read_all(){
-    voltage_generated = read_voltage_avg_calibration(A7);
-    voltage_used = read_voltage_avg_calibration(A6);
-    current_generated = read_current_avg_calibration(A5);
-    current_used = read_current_avg_calibration(A4);
+    voltage_generated = read_voltage_avg_calibration(A4);
+    voltage_used = read_voltage_avg_calibration(A5);
+    current_generated = read_current_avg_calibration(A6) - 0.1;
+    current_used = read_current_avg_calibration(A7) - 0.14;
     power_generated = voltage_generated * current_generated;
     power_used = voltage_used * current_used;
 
     Serial.println(
-        String(voltage_generated) + "," +
-        String(current_generated) + "," +
-        String(power_generated) + "," +
-        String(voltage_used) + "," +
-        String(current_used) + "," +
+        String(voltage_generated) + " | " +
+        String(current_generated) + " | " +
+        String(power_generated) + " | " +
+        String(voltage_used) + " | " +
+        String(current_used) + " | " +
         String(power_used) 
     );
 }
