@@ -9,17 +9,15 @@ serial_arduino = serial.Serial('/dev/ttyUSB0', 9600)
 
 
 def parsing_data():
-    if serial_arduino.isOpen():
-        serial_arduino.flushInput()
-        val = serial_arduino.readline()
+    serial_arduino.flushInput()
+    val = serial_arduino.readline()
+    while not '\\n' in str(val):
         time.sleep(.001)
         temp = serial_arduino.readline()
         if not not temp.decode():
             val = (val.decode()+temp.decode()).encode()
-        val = val.decode().rstrip().split(',')
-        print(val)
-        print("data func")
-        return val
+    val = val.decode().rstrip().split(',')
+    return val
 
 
 def get_data():
