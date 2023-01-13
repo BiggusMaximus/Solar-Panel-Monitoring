@@ -1,10 +1,9 @@
-import RPi.GPIO as GPIO      
-import os, time
- 
-GPIO.setmode(GPIO.BOARD)    
-port = serial.Serial("/dev/ttyAMA0", baudrate=9600, timeout=0.5)
- 
+import serial
+
+ser = serial.Serial('/dev/ttyUSB0',9600)
+s = [0]
 while True:
-    port.write('A')
-    rcv = port.read(10)
-    print rcv
+    read_serial = ser.readline()
+    s[0] = str(int(ser.readline(),16))
+    print(s[0])
+    print(read_serial)
