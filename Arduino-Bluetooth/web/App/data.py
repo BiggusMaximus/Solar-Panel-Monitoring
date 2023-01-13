@@ -34,11 +34,11 @@ def get_data():
     print("get_data")
     val = parsing_data()
     voltage_generated = val[0]
-    voltage_used = val[1]
-    current_generated = val[2]
-    current_used = val[3]
-    power_used = val[4]
-    power_generated = val[5]
+    current_generated = val[1]
+    power_generated = val[2]
+    voltage_used = val[3]
+    current_used = val[4]
+    power_used = str(float(val[5]) - 0.09)
 
     data.append(
         {
