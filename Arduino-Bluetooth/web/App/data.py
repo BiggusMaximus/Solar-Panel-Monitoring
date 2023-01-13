@@ -18,6 +18,7 @@ def parsing_data():
             if not not temp.decode():
                 val = (val.decode()+temp.decode()).encode()
         val = val.decode().rstrip().split(',')
+        print("data func")
         return val
 
 
@@ -32,7 +33,7 @@ def get_data():
         'Power_used': [],
         'Timestamp_used': []
     }
-
+    print("get_data")
     val = parsing_data()
     voltage_generated = val[0]
     voltage_used = val[1]
