@@ -39,7 +39,7 @@ def get_data():
     voltage_used = val[3]
     current_used = val[4]
     power_used = str(float(val[5]) - 0.09)
-
+    # asdasd
     data.append(
         {
             'Voltage_generated': str(voltage_generated),
