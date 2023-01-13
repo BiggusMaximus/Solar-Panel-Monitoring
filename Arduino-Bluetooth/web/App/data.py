@@ -17,9 +17,9 @@ def parsing_data():
             temp = serial_arduino.readline()
             if not not temp.decode():
                 val = (val.decode()+temp.decode()).encode()
-                val = val.decode().rstrip().split(',')
-                print("data func")
-                return val
+            val = val.decode().rstrip().split(',')
+            print("data func")
+            return val
 
 
 def get_data():
