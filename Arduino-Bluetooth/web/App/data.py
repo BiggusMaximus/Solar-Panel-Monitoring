@@ -6,7 +6,16 @@ import time
 
 data = []
 serial_arduino = serial.Serial('/dev/ttyUSB0', 9600)
-
+df = {
+        'Voltage_generated': [],
+        'Current_generated': [],
+        'Power_generated': [],
+        'Timestamp_generated': [],
+        'Voltage_used': [],
+        'Current_used': [],
+        'Power_used': [],
+        'Timestamp_used': []
+    }
 
 def parsing_data():
     serial_arduino.flushInput()
@@ -21,25 +30,19 @@ def parsing_data():
 
 
 def get_data():
-    df = {
-        'Voltage_generated': [],
-        'Current_generated': [],
-        'Power_generated': [],
-        'Timestamp_generated': [],
-        'Voltage_used': [],
-        'Current_used': [],
-        'Power_used': [],
-        'Timestamp_used': []
-    }
+    
     print("get_data")
     val = parsing_data()
-    voltage_generated = val[0]
-    current_generated = val[1]
-    power_generated = val[2]
-    voltage_used = val[3]
-    current_used = val[4]
-    power_used = str(float(val[5]) - 0.09)
-    # asdasd
+    if len(val) != 6:
+        val = parsing_data()
+    else:
+        voltage_generated = val[0]
+        current_generated = val[1]
+        power_generated = val[2]
+        voltage_used = val[3]
+        current_used = val[4]
+        power_used = str(float(val[5]) - 0.09)
+    
     data.append(
         {
             'Voltage_generated': str(voltage_generated),
@@ -63,8 +66,8 @@ def get_data():
     df['Power_used'].append(str(power_used))
     df['Timestamp_used'].append(get_time())
 
-    df = pd.DataFrame(df)
-    df.to_csv('data.csv', index=False)
-    df.to_excel('data.xlsx', index=False)
+    df_all = pd.DataFrame(df)
+    df_all.to_csv('data.csv', index=False)
+    df_all.to_excel('data.xlsx', index=False)
 
     return data
